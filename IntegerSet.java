@@ -1,10 +1,8 @@
-import org.w3c.dom.Node;
-
 public class IntegerSet {
 
-	private Node root;
+    private Node root;
     private int size;
- 
+
     public IntegerSet() {
         root = null;
         size = 0;
@@ -16,7 +14,7 @@ public class IntegerSet {
 
         if (array != null) {
             for (int value : array) {
-                add (value);
+                add(value);
             }
         }
     }
@@ -60,15 +58,21 @@ public class IntegerSet {
     }
 
     public boolean remove(int itemToRemove) {
-         if (!contains(itemToRemove)) {
+        if (!contains(itemToRemove)) {
             return false;
         }
+
         root = remove(root, itemToRemove);
         size--;
         return true;
     }
 
-   if (value < node.data) {
+    private Node remove(Node node, int value) {
+        if (node == null) {
+            return null;
+        }
+
+        if (value < node.data) {
             node.leftChild = remove(node.leftChild, value);
         } else if (value > node.data) {
             node.rightChild = remove(node.rightChild, value);
@@ -93,7 +97,7 @@ public class IntegerSet {
     public boolean contains(int itemToFind) {
         Node current = root;
 
-        while(current != null) {
+        while (current != null) {
             if (itemToFind == current.data) {
                 return true;
             } else if (itemToFind < current.data) {
@@ -106,7 +110,7 @@ public class IntegerSet {
         return false;
     }
 
-    public IntegerSet union (IntegerSet other) {
+    public IntegerSet union(IntegerSet other) {
         IntegerSet result = new IntegerSet();
         addInOrder(this.root, result);
 
@@ -115,7 +119,13 @@ public class IntegerSet {
         }
 
         return result;
+    }
 
+    public IntegerSet intersection(IntegerSet other) {
+        IntegerSet result = new IntegerSet();
+
+        if (other == null) {
+            return result;
         }
 
         intersectionHelper(this.root, other, result);
@@ -127,84 +137,100 @@ public class IntegerSet {
             return;
         }
 
-        intersectionHelper(node.leftChild, other result);
+        intersectionHelper(node.leftChild, other, result);
 
-        if (other.contains(node.data)) { result.add(node.data);
+        if (other.contains(node.data)) {
+            result.add(node.data);
+        }
+
+        intersectionHelper(node.rightChild, other, result);
     }
 
-    intersectionHelper(node.rightChild, other, result);
-}
+    public IntegerSet difference(IntegerSet other) {
+        IntegerSet result = new IntegerSet();
 
-public IntegerSet difference(IntegerSet other) {
-    IntegerSet result = new IntegerSet();
+        if (other == null) {
+            addInOrder(this.root, result);
+            return result;
+        }
 
-    if (other == null) {
-        addInOrder(this.root, result);
+        differenceHelper(this.root, other, result);
         return result;
     }
-    differenceHelper(this.root, other, result);
-    return result;
-}
 
-private void differenceHelper(Node node, IntegerSet other, IntegerSet result) {
-    if (node == null) {
-        return;
+    private void differenceHelper(Node node, IntegerSet other, IntegerSet result) {
+        if (node == null) {
+            return;
+        }
+
+        differenceHelper(node.leftChild, other, result);
+
+        if (!other.contains(node.data)) {
+            result.add(node.data);
+        }
+
+        differenceHelper(node.rightChild, other, result);
     }
 
-    differenceHelper(node.leftChild, other, result);
+    public IntegerSet symmetricDifference(IntegerSet other) {
+        IntegerSet result = new IntegerSet();
 
-    if (!other.contains(node.data)) {
-        result.add(node.data);
-    }
+        if (other == null) {
+            addInOrder(this.root, result);
+            return result;
+        }
 
-    differenceHelper(node.rightChild, other, result);
-}
+        differenceHelper(this.root, other, result);
+        differenceHelper(other.root, this, result);
 
-public IntegerSet symmetricDifference(IntegerSet other) {
-    IntegerSet result = new IntegerSet();
-
-    if (other == null) {
-        addInOrder(this.root, result);
         return result;
     }
-    // Implementation for symmetric difference would go here
-    return result;
-}
-\publick int getMin() {
-    if (root == null) {
-        throw new IllegalStateExecption("set is empty");
+
+    public int getMin() {
+        if (root == null) {
+            throw new IllegalStateException("Set is empty");
+        }
+
+        return getMinNode(root).data;
     }
 
-    return getMinNode(root).data;
-}
+    public int getMax() {
+        if (root == null) {
+            throw new IllegalStateException("Set is empty");
+        }
 
-public int getMax() {
-    if (root == null) {
-        throw new IllegalStateExecption("set is empty");
+        Node current = root;
+        while (current.rightChild != null) {
+            current = current.rightChild;
+        }
+
+        return current.data;
     }
 
-    Node current = root;
-    while (current.rightChild != null) {
-        current = current.rightChild;
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        buildStringInOrder(root, sb);
+
+        if (sb.length() > 1) {
+            sb.setLength(sb.length() - 2);
+        }
+
+        sb.append("]");
+        return sb.toString();
     }
 
-    return current.data;
-}
+    private void buildStringInOrder(Node node, StringBuilder sb) {
+        if (node == null) {
+            return;
+        }
 
-public String toString() {
-    StringBuilder sb = new Stringbuilder();
-    sb.append("[");
-    buildStringInOrder(root, sb);
-
-    if (sob.length() > 1) {
-        sb.setlength(sb.length() - 2);
+        buildStringInOrder(node.leftChild, sb);
+        sb.append(node.data).append(", ");
+        buildStringInOrder(node.rightChild, sb);
     }
 
-    sb.append("]);
-    return sb.toString();
-}
-
-  private void addInOrder(Node node, IntegerSet set) {
+    private void addInOrder(Node node, IntegerSet set) {
         if (node == null) {
             return;
         }
@@ -220,6 +246,7 @@ public String toString() {
         while (current.leftChild != null) {
             current = current.leftChild;
         }
+
         return current;
     }
 
@@ -233,57 +260,58 @@ public String toString() {
         }
     }
 
-    private int get BalanceFactor(Node node) {
-        return node == null ? 0 : height (node.leftChild) - height(node,rightChild);
-}
+    private int getBalanceFactor(Node node) {
+        return node == null ? 0 : height(node.leftChild) - height(node.rightChild);
+    }
 
-Private Node balance(Node node) {
-    int balanceFactor = getBalanceFactor(node);
+    private Node balance(Node node) {
+        int balanceFactor = getBalanceFactor(node);
 
-    if (balanceFactor > 1) {
-        if (getBalanceFactor(node.leftChild) < 0) {
-            node.leftChild = rotateLeft(node.leftChild);
+        if (balanceFactor > 1) {
+            if (getBalanceFactor(node.leftChild) < 0) {
+                node.leftChild = rotateLeft(node.leftChild);
+            }
+            return rotateRight(node);
         }
-        return rotateRight(node);
-}
 
-if (balanceFactor < -1) {
-    if (getBalanceFactor(node.rightChild0 > 0) {
-    node.rightCHild = rotateRight(node.rightChild);
-}
-    return roateLeft(node);
-}
-    return node;
-}
+        if (balanceFactor < -1) {
+            if (getBalanceFactor(node.rightChild) > 0) {
+                node.rightChild = rotateRight(node.rightChild);
+            }
+            return rotateLeft(node);
+        }
 
-Private Node rotateRight(Node y) {
-Node x = y.leftChild;
-Node t2 = x.rightChild;
+        return node;
+    }
 
-x.rightChild = y;
-y.leftChild = t2;
+    private Node rotateRight(Node y) {
+        Node x = y.leftChild;
+        Node t2 = x.rightChild;
 
-updateHeight(y);
-updateHeight(x);
+        x.rightChild = y;
+        y.leftChild = t2;
 
-return x;
-}
+        updateHeight(y);
+        updateHeight(x);
 
-private Node rotateLeft(Node x) {
-Node y = x.rightChild;
-Node t2 = y.leftChild;
+        return x;
+    }
 
-y.leftChild = x;
-x.rightChild = t2;
+    private Node rotateLeft(Node x) {
+        Node y = x.rightChild;
+        Node t2 = y.leftChild;
 
-updateHeight(x);
-updateHeight(y);
+        y.leftChild = x;
+        x.rightChild = t2;
 
-return y;
-}
+        updateHeight(x);
+        updateHeight(y);
 
-Private class Node {
-private int data;
+        return y;
+    }
+
+    private class Node {
+        private int data;
         private int height;
         private Node leftChild;
         private Node rightChild;
@@ -296,11 +324,3 @@ private int data;
         }
     }
 }
-
-
-
-
-
-
-        
-
